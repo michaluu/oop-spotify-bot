@@ -1,72 +1,57 @@
-This folder contains a Bot Project created with Bot Framework Composer.
+## Overview
 
-The full documentation for Composer lives here:
-https://github.com/microsoft/botframework-composer
+This bot was created as part of the "Knock knock. Who's there? It's me, your bot!" presentation for OOP CodeDays 2021.
 
-To test this bot locally, open this folder in Composer, then click "Start Bot"
+This is a Bot Framework Composer(BFC) project created with version: `1.3.0`.
 
-## Provision Azure Resources to Host Bot
+Bot has two functionalities implemented:
+- Display currently playing track of the authenticated user.
+- Start playback for authenticated user of a random top track by a given artist.
 
-This project includes a script that can be used to provision the resources necessary to run your bot in the Azure cloud. Running this script will create all of the necessary resources and return a publishing profile in the form of a JSON object.  This JSON object can be imported into Composer's "Publish" tab and used to deploy the bot.
+## Setup guide
 
-* From this project folder, navigate to the scripts/ folder
-* Run `npm install`
-* Run `node provisionComposer.js --subscriptionId=<YOUR AZURE SUBSCRIPTION ID> --name=<NAME OF YOUR RESOURCE GROUP> --appPassword=<APP PASSWORD> --environment=<NAME FOR ENVIRONMENT DEFAULT to dev>`
-* You will be asked to login to the Azure portal in your browser.
-* You will see progress indicators as the provision process runs. Note that it will take roughly 10 minutes to fully provision the resources.
+To run the project, the following setup is required.
 
-It will look like this:
+Requirements:
+- Azure Account - create an account at https://portal.azure.com/. A free trail is enough.
+- Spotify Application - create an application at https://developer.spotify.com/dashboard/login.
+- Bot Framework Composer - download and install https://github.com/microsoft/BotFramework-Composer.
+- Bot Framework Emulator - download and install https://github.com/microsoft/BotFramework-Emulator
+
+
+### Setup Bot Framework Composer project
+
 ```
-{
-  "accessToken": "<SOME VALUE>",
-  "name": "<NAME OF YOUR RESOURCE GROUP>",
-  "environment": "<ENVIRONMENT>",
-  "settings": {
-    "applicationInsights": {
-      "InstrumentationKey": "<SOME VALUE>"
-    },
-    "cosmosDb": {
-      "cosmosDBEndpoint": "<SOME VALUE>",
-      "authKey": "<SOME VALUE>",
-      "databaseId": "botstate-db",
-      "containerId": "botstate-container"
-    },
-    "blobStorage": {
-      "connectionString": "<SOME VALUE>",
-      "container": "transcripts"
-    },
-    "luis": {
-      "endpointKey": "<SOME VALUE>",
-      "authoringKey": "<SOME VALUE>",
-      "region": "westus"
-    },
-    "MicrosoftAppId": "<SOME VALUE>",
-    "MicrosoftAppPassword": "<SOME VALUE>"
-  }
-}```
+This guide shows the resource provisioning through BFC built-in Publish function. To run the bot locally you only need Bot Channel Registration and LUIS Authoring resource. You can provision them separately and just fill in the necessary Project Settings info.
+```
 
-When completed, you will see a message with a JSON "publishing profile" and instructions for using it in Composer.
-
-
-## Publish bot to Azure
-
-To publish your bot to a Azure resources provisioned using the process above:
-
-* Open your bot in Composer
-* Navigate to the "Publish" tab
-* Select "Add new profile" from the toolbar
-* In the resulting dialog box, choose "azurePublish" from the "Publish Destination Type" dropdown
-* Paste in the profile you received from the provisioning script
-
-When you are ready to publish your bot to Azure, select the newly created profile from the sidebar and click "Publish to selected profile" in the toolbar.
-
-## Refresh your Azure Token
-
-When publishing, you may encounter an error about your access token being expired. This happens when the access token used to provision your bot expires.
-
-To get a new token:
-
-* Open a terminal window
-* Run `az account get-access-token`
-* This will result in a JSON object printed to the console, containing a new `accessToken` field.
-* Copy the value of the accessToken from the terminal and into the publish `accessToken` field in the profile in Composer.
+1. Clone the project and open it with Bot Framework Composer.
+2. Navigate to Project Settings.
+3. Add new publish profile.
+   1. Set profile name e.g. DevEnv.
+   2. Select publish target to: Publish bot to Azure Web App.
+   3. Log in to your Azure account.
+   4. Create new Azure resources.
+   5. Select subscription that you want to use.
+   6. Select name for resource group e.g. oop-spotify-bot.
+   7. Select location to West Europe or your preferred one.
+   8. This project only needs LUIS. From the Optional resources select: LUIS Authoring and LUIS Prediction.
+   9. Finish the setup.
+   10. In case you get errors during creation make sure that you have all the necessary providers registered: `Microsoft.CognitiveServices, Microsoft.Web, Microsoft.Search, Microsoft.Storage`. You can register providers through Azure CLI e.g. ```az provider register --namespace Microsoft.Web``` .
+4.  Enable custom runtime. Set location to `runtime` and start command to `dotnet run --project azurewebapp`.
+5.  Fill in the project settings based on provisioning result. Select Advanced Settings View to see the json and look at `publishTargets.configuration` field. Find the provision result string and fill the following fields: `Microsoft App Id, Microsoft App Password, LUIS authoring key, LUIS region`.
+6.  Navigate to Spotify Developer Dashboard and create an app. Write down Client ID and Client Secret.
+    1.  Edit Settings and add add Redirect URI: `https://token.botframework.com/.auth/web/redirect`
+7.  Navigate to Azure Portal and find your newly created Bot Channel Registration. 
+8.  Open Settings.
+9.  Find OAuth Connection Settings and click Add Setting.
+    1.  Name your connection: Spotify.
+    2.  Service Provider: Generic Oauth 2.
+    3.  Fill Client id with Spotify Client Id.
+    4.  Fill Secret with Spotify Client Secret.
+    5.  Fill Authorization URL with: https://accounts.spotify.com/authorize
+    6.  Fill Token URL with: https://accounts.spotify.com/api/token
+    7.  Fill Refresh URL with: https://accounts.spotify.com/api/token
+    8.  Fill Scopes with: `user-read-playback-state,user-modify-playback-state`
+    9.  Save and test your connection.
+10. Go back to BFC and run the bot. You can run it inside the Emulator or Publish it to Azure thourgh the Publish Profile.
