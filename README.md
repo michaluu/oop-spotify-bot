@@ -2,6 +2,8 @@
 
 This bot was created as part of the "Knock knock. Who's there? It's me, your bot!" presentation for OOP CodeDays 2021.
 
+Slides available here: [presentation](https://github.com/michaluu/oop-spotify-bot/blob/master/docs/20210210_Knock_Knock_Whos_there_Capgemini_Code_days.pdf).
+
 This is a Bot Framework Composer(BFC) project created with version: `1.3.0`.
 
 Bot has two functionalities implemented:
